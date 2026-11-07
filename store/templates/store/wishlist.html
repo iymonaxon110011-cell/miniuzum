@@ -1,0 +1,30 @@
+{% extends 'store/base.html' %}
+{% block title %}Sevimlilar — Uzum Market{% endblock %}
+{% block content %}
+<section class="wishlist-page wrap">
+  <div class="section-heading"><div><span class="eyebrow eyebrow--subtle">Saqlab qo‘yilgan tanlovlar</span><h1>Sevimlilar</h1></div><a class="text-link" href="{% url 'product_list' %}#catalog">Xaridga qaytish <span>↗</span></a></div>
+  {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+        <article class="product-card">
+          <div class="product-card__visual">
+            <a class="product-card__image" href="{% url 'product_detail' product.pk %}" aria-label="{{ product.name }} haqida batafsil">
+              {% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">{% else %}<div class="product-placeholder"><span>✳</span></div>{% endif %}
+              {% if product.marketing_discount_percent %}<span class="sale-badge">−{{ product.marketing_discount_percent }}%</span>{% endif %}
+            </a>
+            <form class="wishlist-toggle" action="{% url 'wishlist_toggle' product.pk %}" method="post">{% csrf_token %}<input type="hidden" name="next" value="{% url 'wishlist' %}"><button class="is-favorite" type="submit" aria-label="{{ product.name }} ni sevimlilardan olib tashlash" aria-pressed="true">♥</button></form>
+          </div>
+          <div class="product-card__body">
+            <span class="product-category">{{ product.category }}{% if product.brand %} · {{ product.brand }}{% endif %}</span>
+            <a class="product-name" href="{% url 'product_detail' product.pk %}">{{ product.name }}</a>
+            <p class="product-description">{{ product.description|default:"Yangi sevimli topilmangiz bilan tanishing." }}</p>
+            <div class="product-card__bottom"><div class="price-block">{% if product.marketing_old_price %}<span class="old-price">{{ product.marketing_old_price|floatformat:0 }} so‘m</span>{% endif %}<strong>{{ product.marketing_price|floatformat:0 }} <small>so‘m</small></strong></div><form action="{% url 'cart_update' product.pk %}" method="post">{% csrf_token %}<button class="cart-add-button" type="submit" name="action" value="add" aria-label="{{ product.name }} ni savatga qo‘shish"><span class="cart-add-button__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/></svg><i>+</i></span><span>Savatga</span></button></form></div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><span class="empty-state__icon">♡</span><h2>Sevimlilar ro‘yxati hozircha bo‘sh</h2><p>Mahsulot yonidagi yurak belgisini bosib, yoqqanlaringizni shu yerda saqlang.</p><a class="button button--purple" href="{% url 'product_list' %}#catalog">Mahsulotlarni ko‘rish <span>↗</span></a></div>
+  {% endif %}
+</section>
+{% endblock %}

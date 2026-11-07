@@ -1,0 +1,37 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}Buyurtmani rasmiylashtirish — Uzum Market{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'store/cart.css' %}">{% endblock %}
+{% block content %}
+<section class="checkout-page wrap">
+  <a class="checkout-back" href="{% url 'cart' %}">← Savatga qaytish</a>
+  <div class="checkout-heading"><span class="eyebrow eyebrow--subtle">So‘nggi qadam</span><h1>Buyurtmani rasmiylashtirish</h1><p>Yetkazib berish uchun ma’lumotlaringizni kiriting. Buyurtma yakunlangach, {{ cashback_percent }}% keshbek hamyonga qaytadi.</p></div>
+  {% if insufficient_balance or balance_insufficient %}<div class="checkout-wallet-warning" role="alert"><strong>Balansingiz yetarli emas.</strong><span>Balansingiz: {{ wallet.balance|floatformat:0 }} so‘m. Buyurtma uchun {{ total|floatformat:0 }} so‘m kerak.</span><a href="{% url 'profile' %}#wallet">Balansni to‘ldirish ↗</a></div>{% endif %}
+  <div class="checkout-layout">
+    <section class="checkout-form-panel">
+      <div class="checkout-form-heading"><span>01</span><div><small>Yetkazib berish</small><h2>Qabul qiluvchi ma’lumotlari</h2></div></div>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div class="field checkout-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<span class="checkout-error">{{ error }}</span>{% endfor %}
+          </div>
+        {% endfor %}
+        <button class="checkout-submit" type="submit"><span>Buyurtmani tasdiqlash</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10h12m-5-5 5 5-5 5"/></svg></button>
+      </form>
+    </section>
+    <aside class="cart-summary checkout-summary">
+      <h2>Buyurtma tarkibi</h2>
+      <div class="checkout-lines">{% for item in items %}<div class="checkout-line"><span>{{ item.product.name }} <small>×{{ item.quantity }}</small></span><strong>{{ item.line_total|floatformat:0 }} so‘m</strong></div>{% endfor %}</div>
+      <div><span>Mahsulotlar</span><strong>{{ quantity_total }} ta</strong></div>
+      <div><span>Oraliq jami</span><strong>{{ subtotal|floatformat:0 }} so‘m</strong></div>
+      {% if discount_amount %}<div><span>Promokod chegirmasi{% if coupon %} ({{ coupon.code }}){% endif %}</span><strong>−{{ discount_amount|floatformat:0 }} so‘m</strong></div>{% endif %}
+      <div><span>Hamyon balansi</span><strong>{{ wallet.balance|floatformat:0 }} so‘m</strong></div>
+      <div class="cart-summary__total"><span>Jami</span><strong>{{ total|floatformat:0 }} so‘m</strong></div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

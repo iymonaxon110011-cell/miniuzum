@@ -1,0 +1,92 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} — Uzum Market{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'store/product_detail.css' %}">{% endblock %}
+{% block content %}
+<section class="detail-page wrap">
+  <nav class="detail-breadcrumbs" aria-label="Sahifa yo‘li"><a href="{% url 'product_list' %}">Bosh sahifa</a><span>/</span><span>{{ product.category }}</span></nav>
+  <div class="detail-layout">
+    <div class="detail-visual">
+      {% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}">{% else %}<div class="product-placeholder"><span>✳</span></div>{% endif %}
+      {% if product.marketing_discount_percent %}<span class="detail-sale">−{{ product.marketing_discount_percent }}%</span>{% endif %}
+    </div>
+    <div class="detail-info">
+      <span class="detail-category">{{ product.category }}</span>
+      <h1>{{ product.name }}</h1>
+      {% if product.brand %}<p class="detail-brand">Brend: <strong>{{ product.brand }}</strong></p>{% endif %}
+      <div class="detail-price">
+        {% if product.marketing_old_price %}<span class="detail-old-price">{{ product.marketing_old_price|floatformat:0 }} so‘m</span>{% endif %}
+        <strong>{{ product.marketing_price|floatformat:0 }} <small>so‘m</small></strong>
+        {% if product.marketing_discount_percent %}<span class="detail-discount">−{{ product.marketing_discount_percent }}%</span>{% endif %}
+      </div>
+      <div class="detail-divider"></div>
+      <h2>Mahsulot haqida</h2>
+      <p class="detail-description">{% if product.description %}{{ product.description|linebreaksbr }}{% else %}Bu mahsulot uchun tavsif kiritilmagan.{% endif %}</p>
+      <dl class="detail-specs"><div><dt>Kategoriya</dt><dd>{{ product.category }}</dd></div>{% if product.brand %}<div><dt>Brend</dt><dd>{{ product.brand }}</dd></div>{% endif %}<div><dt>Katalogga qo‘shilgan</dt><dd>{{ product.created_at|date:"d.m.Y" }}</dd></div><div><dt>Mahsulot raqami</dt><dd>#{{ product.pk }}</dd></div></dl>
+      {% if user.is_authenticated %}<form class="detail-wishlist" action="{% url 'wishlist_toggle' product.pk %}" method="post">{% csrf_token %}<input type="hidden" name="next" value="{{ next_url }}"><button class="{% if is_favorite %}is-favorite{% endif %}" type="submit" aria-pressed="{{ is_favorite|yesno:'true,false' }}">{% if is_favorite %}♥ Sevimlilardan olib tashlash{% else %}♡ Sevimlilarga qo‘shish{% endif %}</button></form>{% else %}<a class="detail-wishlist" href="{% url 'login' %}?next={{ next_url|urlencode }}">♡ Sevimlilarga qo‘shish uchun kiring</a>{% endif %}
+      <div class="detail-actions">{% if user.is_staff %}<a class="button button--purple" href="{% url 'product_update' product.pk %}">Mahsulotni tahrirlash <span>↗</span></a><a class="detail-delete" href="{% url 'product_delete' product.pk %}">O‘chirish</a>{% else %}<form action="{% url 'cart_update' product.pk %}" method="post">{% csrf_token %}<button class="button button--purple cart-add-detail" type="submit" name="action" value="add"><span class="cart-add-button__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/></svg><i>+</i></span>Savatga qo‘shish</button></form>{% endif %}</div>
+    </div>
+  </div>
+  {% if recommendations %}
+  <section class="catalog-section" aria-labelledby="recommendations-title">
+    <div class="section-heading"><div><span class="eyebrow eyebrow--subtle">Shu turkumdan</span><h2 id="recommendations-title">Sizga yoqishi mumkin</h2></div></div>
+    <div class="product-grid">
+      {% for recommended in recommendations %}
+      <article class="product-card">
+        <div class="product-card__visual"><a class="product-card__image" href="{% url 'product_detail' recommended.pk %}">{% if recommended.image_url %}<img src="{{ recommended.image_url }}" alt="{{ recommended.name }}" loading="lazy">{% else %}<div class="product-placeholder"><span>✳</span></div>{% endif %}</a></div>
+        <div class="product-card__body"><span class="product-category">{{ recommended.category }}</span><a class="product-name" href="{% url 'product_detail' recommended.pk %}">{{ recommended.name }}</a><div class="product-card__bottom"><div class="price-block">{% if recommended.marketing_old_price %}<span class="old-price">{{ recommended.marketing_old_price|floatformat:0 }} so‘m</span>{% endif %}<strong>{{ recommended.marketing_price|floatformat:0 }} <small>so‘m</small></strong></div><form action="{% url 'cart_update' recommended.pk %}" method="post">{% csrf_token %}<button class="cart-add-button" type="submit" name="action" value="add" aria-label="{{ recommended.name }} ni savatga qo‘shish">Savatga</button></form></div></div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  <section class="product-reviews" id="reviews" aria-labelledby="reviews-title">
+    <div class="product-reviews__heading">
+      <div><span class="eyebrow eyebrow--subtle">Haqiqiy xaridorlar fikri</span><h2 id="reviews-title">Mijozlar sharhlari</h2></div>
+      {% if review_count %}<div class="review-summary"><strong>{{ review_average|floatformat:1 }}</strong><span class="review-stars" aria-label="{{ review_average|floatformat:1 }} / 5">{% for value in rating_values %}{% if review_average >= value %}★{% else %}☆{% endif %}{% endfor %}</span><small>{{ review_count }} ta tasdiqlangan sharh</small></div>{% else %}<span class="review-summary__empty">Hozircha sharh yo‘q</span>{% endif %}
+    </div>
+    {% if reviews %}
+      <div class="review-list">
+        {% for review in reviews %}
+          <article class="review-card">
+            <div class="review-card__heading"><strong>{{ review.user.get_full_name|default:review.user.username }}</strong><span class="verified-review">✓ Xaridi tasdiqlangan</span><time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:"d.m.Y" }}</time></div>
+            <div class="review-card__stars" aria-label="{{ review.rating }} / 5">{% for value in rating_values %}{% if review.rating >= value %}★{% else %}☆{% endif %}{% endfor %}</div>
+            <p>{{ review.comment|linebreaksbr }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="review-empty">Bu mahsulot haqida hali tasdiqlangan sharh yo‘q. Xaridingiz yakunlangach, birinchi bo‘lib fikr qoldirishingiz mumkin.</p>
+      <div class="review-demo">
+        <h3>Namuna sharhlar</h3>
+        <p class="review-demo__notice">Sahifa ko‘rinishi uchun namunalar</p>
+        <div class="review-list">
+          <article class="review-card"><p>Mahsulotning ko‘rinishi chiroyli ekan, tavsifidagi ma’lumotlar ham tushunarli.</p></article>
+          <article class="review-card"><p>Narxi va mahsulot haqidagi kerakli ma’lumotlarni bir sahifada ko‘rish qulay ekan.</p></article>
+          <article class="review-card"><p>Rasmi va tavsifi mahsulotni tanlashdan oldin tanishib olishga yordam beradi.</p></article>
+        </div>
+      </div>
+    {% endif %}
+    <div class="review-form-panel">
+      {% if can_review %}
+        <h3>Fikringizni yozing</h3>
+        <p>Sharhingiz haqiqiy xaridingizga bog‘lanadi va saytda chiqishidan oldin admin tomonidan tekshiriladi.</p>
+        <form class="review-form" method="post" action="{% url 'product_detail' product.pk %}#reviews">
+          {% csrf_token %}
+          {% if review_form.non_field_errors %}<div class="form-errors">{{ review_form.non_field_errors }}</div>{% endif %}
+          <div class="field"><label for="{{ review_form.rating.id_for_label }}">Baho</label>{{ review_form.rating }}{{ review_form.rating.errors }}</div>
+          <div class="field"><label for="{{ review_form.comment.id_for_label }}">Sharhingiz</label>{{ review_form.comment }}{{ review_form.comment.errors }}</div>
+          <button class="button button--purple" type="submit">Sharhni yuborish <span>↗</span></button>
+        </form>
+      {% elif user_review %}
+        {% if user_review.is_approved %}<p class="review-status">Bu mahsulot uchun sharhingizni qoldirgansiz.</p>{% else %}<p class="review-status">Sharhingiz admin tekshiruvini kutmoqda.</p>{% endif %}
+      {% elif user.is_authenticated %}
+        <p class="review-status">Sharh qoldirish uchun ushbu mahsulot xaridingiz yakunlangan bo‘lishi kerak.</p>
+      {% else %}
+        <p class="review-status"><a href="{% url 'login' %}?next={% url 'product_detail' product.pk %}%23reviews">Xaridingiz yakunlangach, sharh qoldirish uchun hisobingizga kiring.</a></p>
+      {% endif %}
+    </div>
+  </section>
+  <a class="detail-back" href="{% url 'product_list' %}">← Katalogga qaytish</a>
+</section>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}{% if is_edit %}Mahsulotni tahrirlash{% else %}Mahsulot qo‘shish{% endif %} — Uzum Market{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'store/image_upload.css' %}">{% endblock %}
+{% block content %}
+<section class="form-page wrap">
+  <a class="back-link" href="{% url 'product_list' %}">← <span>Katalogga qaytish</span></a>
+  <div class="form-layout">
+    <div class="form-intro">
+      <span class="eyebrow"><span></span> Sotuvchilar uchun</span>
+      <h1>{% if is_edit %}Mahsulotni<br><em>yangilang.</em>{% else %}Yaxshi narsalar<br><em>shu yerdan.</em>{% endif %}</h1>
+      <p>{% if is_edit %}Ma’lumotlarni o‘zgartiring — yangilangan mahsulot darhol katalogda ko‘rinadi.{% else %}Mahsulotingiz haqida qisqacha ayting. Narxi va rasmi bilan u katalogda paydo bo‘ladi.{% endif %}</p>
+      <div class="form-tip"><span>✳</span><div><strong>Kichik maslahat</strong><p>Yorug‘, tiniq rasm va aniq tavsif xaridorlarga tanlashda yordam beradi.</p></div></div>
+      <div class="form-graphic"><span>＋</span><i></i><i></i><i></i></div>
+    </div>
+    <form class="product-form" method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <div class="form-heading"><div><span class="eyebrow eyebrow--subtle">Mahsulot ma’lumotlari</span><h2>{% if is_edit %}Tahrirlash{% else %}Yangi mahsulot{% endif %}</h2></div><span class="form-step">01 <i>/</i> 01</span></div>
+      {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="field"><label for="{{ form.name.id_for_label }}">Mahsulot nomi <span>*</span></label>{{ form.name }}{{ form.name.errors }}</div>
+      <div class="field"><label for="{{ form.brand.id_for_label }}">Brend <small>ixtiyoriy</small></label>{{ form.brand }}{{ form.brand.errors }}</div>
+      <div class="field-row">
+        <div class="field"><label for="{{ form.category.id_for_label }}">Kategoriya <span>*</span></label>{{ form.category }}{{ form.category.errors }}<datalist id="product-category-options">{% for value, label in category_suggestions %}<option value="{{ value }}">{% endfor %}</datalist></div>
+        <div class="field"><label for="{{ form.price.id_for_label }}">Narxi <span>*</span></label><div class="input-suffix">{{ form.price }}<span>so‘m</span></div>{{ form.price.errors }}</div>
+      </div>
+      <div class="field product-season-field"><label for="{{ form.season.id_for_label }}">Mavsum <small>kiyim uchun</small></label>{{ form.season }}{{ form.season.errors }}</div>
+      <div class="field"><label for="{{ form.old_price.id_for_label }}">Eski narxi <small>ixtiyoriy, chegirma uchun</small></label><div class="input-suffix">{{ form.old_price }}<span>so‘m</span></div>{{ form.old_price.errors }}</div>
+      <div class="field"><label for="{{ form.description.id_for_label }}">Qisqa tavsif <small>ixtiyoriy</small></label>{{ form.description }}{{ form.description.errors }}</div>
+      <div class="image-field">
+        <label class="image-field__label" for="{{ form.image.id_for_label }}">Mahsulot rasmi <small>ixtiyoriy</small></label>
+        <div class="image-preview" data-image-preview>
+          {% if is_edit and product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }} rasmi">{% else %}<span class="image-preview__placeholder"><i>↥</i><strong>Rasmingiz shu yerda ko‘rinadi</strong><small>Yuklashdan oldin tanlangan rasmni ko‘rib oling</small></span>{% endif %}
+        </div>
+        <div class="image-upload">
+          <label class="image-upload__button" for="{{ form.image.id_for_label }}"><span>＋</span> Rasmni tanlash</label>
+          {{ form.image }}
+          <span class="image-upload__name" data-image-name>JPG, PNG yoki WEBP · 10 MB gacha</span>
+        </div>
+        {{ form.image.errors }}
+      </div>
+      <div class="form-actions"><button class="button button--purple" type="submit">{% if is_edit %}O‘zgarishlarni saqlash{% else %}Mahsulotni qo‘shish{% endif %}<span>↗</span></button>{% if is_edit %}<a class="delete-link" href="{% url 'product_delete' product.pk %}">O‘chirish</a>{% endif %}</div>
+    </form>
+  </div>
+</section>
+{% endblock %}

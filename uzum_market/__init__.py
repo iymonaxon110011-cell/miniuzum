@@ -1,0 +1,1 @@
+"""Uzum Market Django project."""

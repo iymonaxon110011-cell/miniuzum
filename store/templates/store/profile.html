@@ -1,0 +1,61 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}Profilim — Uzum Market{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'store/profile.css' %}">{% endblock %}
+{% block content %}
+<section class="profile-page wrap">
+  <header class="profile-heading"><div><span class="eyebrow eyebrow--subtle">Shaxsiy kabinet</span><h1>Profilim</h1><p>{{ user.get_full_name|default:user.username }} · xaridlarim va buyurtmalarim</p></div><span class="profile-order-count">{{ order_count }} ta buyurtma</span></header>
+  <section class="wallet-panel" id="wallet">
+    <div class="wallet-panel__head"><div><span class="eyebrow eyebrow--subtle">Xarid balansi</span><h2>Hamyon</h2></div><strong class="wallet-balance"><span data-wallet-balance>{{ wallet.balance|floatformat:0 }}</span> <small>so‘m</small></strong></div>
+    {% if wallet.card_last4 %}
+      <div class="saved-card"><span class="saved-card__mark">▰</span><span>Ulangan karta</span><strong>•••• •••• •••• {{ wallet.card_last4 }}</strong></div>
+      {% if has_pending_card_change %}<p class="wallet-help">Karta bo‘yicha so‘rovingiz admin tasdig‘ini kutmoqda.</p>{% else %}
+        <form class="wallet-remove-form" method="post" action="{% url 'profile' %}#wallet" onsubmit="return confirm('Kartani o‘chirish so‘rovini yubormoqchimisiz?')">
+          {% csrf_token %}<input type="hidden" name="action" value="remove_card">
+          <button class="wallet-remove" type="submit">Kartani o‘chirish</button>
+        </form>
+      {% endif %}
+      <form class="wallet-form" method="post" action="{% url 'profile' %}#wallet">
+        {% csrf_token %}<input type="hidden" name="action" value="request_topup">
+        <div class="wallet-form__field"><label for="{{ topup_form.amount.id_for_label }}">Balansni to‘ldirish summasi</label>{{ topup_form.amount }}{% for error in topup_form.amount.errors %}<span class="wallet-error">{{ error }}</span>{% endfor %}</div>
+        <button class="wallet-submit" type="submit">Adminga so‘rov yuborish <span>↗</span></button>
+        <p class="wallet-help">Pul admin tasdiqlaganidan keyin balansga qo‘shiladi.</p>
+      </form>
+    {% else %}
+      <div class="wallet-no-card"><strong>Karta qo‘shilmagan</strong><span>Xarid qilish uchun avval karta raqamingizni kiriting.</span></div>
+      {% if has_pending_card_change %}<p class="wallet-help">Karta qo‘shish so‘rovingiz admin tasdig‘ini kutmoqda.</p>{% else %}
+        <form class="wallet-form wallet-form--card" method="post" action="{% url 'profile' %}#wallet">
+          {% csrf_token %}<input type="hidden" name="action" value="add_card">
+          <div class="wallet-form__field"><label for="{{ card_form.card_number.id_for_label }}">16 xonali karta raqami</label>{{ card_form.card_number }}{% for error in card_form.card_number.errors %}<span class="wallet-error">{{ error }}</span>{% endfor %}{% for error in card_form.non_field_errors %}<span class="wallet-error">{{ error }}</span>{% endfor %}</div>
+          <button class="wallet-submit" type="submit">Kartani qo‘shish <span>＋</span></button>
+          <p class="wallet-help">Admin tasdiqlagandan keyin karta ulanadi. Xavfsizlik uchun faqat oxirgi 4 raqam saqlanadi. Bu demo ichki balans tizimi, karta orqali haqiqiy yechim amalga oshirilmaydi.</p>
+        </form>
+      {% endif %}
+    {% endif %}
+    {% if topup_requests %}<div class="topup-history"><h3>Balans to‘ldirish so‘rovlari</h3>{% for topup in topup_requests %}<div class="topup-row" data-topup-id="{{ topup.pk }}"><span>{{ topup.created_at|date:"d.m.Y H:i" }}</span><strong>{{ topup.amount|floatformat:0 }} so‘m</strong><span class="topup-status topup-status--{{ topup.status }}">{{ topup.get_status_display }}</span></div>{% endfor %}</div>{% endif %}
+    {% if card_change_requests %}<div class="topup-history"><h3>Karta so‘rovlari</h3>{% for card_request in card_change_requests %}<div class="topup-row" data-card-request-id="{{ card_request.pk }}"><span>{{ card_request.created_at|date:"d.m.Y H:i" }}</span><strong>{{ card_request.get_action_display }} · •••• {{ card_request.card_last4 }}</strong><span class="topup-status topup-status--{{ card_request.status }}">{{ card_request.get_status_display }}</span></div>{% endfor %}</div>{% endif %}
+  </section>
+  <div class="profile-section-heading"><h2>Xaridlarim</h2><span>Buyurtma holati yangilanishi bilan shu yerda ko‘rinadi</span></div>
+  {% if orders %}
+    <div class="profile-orders">
+      {% for order in orders %}
+        <article class="profile-order">
+          <header class="profile-order__head"><div><span class="profile-order__number">Buyurtma #{{ order.pk }}</span><span class="profile-order__date">{{ order.created_at|date:"j F Y, H:i" }}</span></div><span class="profile-status profile-status--{{ order.status }}" data-order-status="{{ order.pk }}"><i></i><span data-order-status-label>{{ order.get_status_display }}</span></span></header>
+          <div class="profile-order__items">
+            {% for item in order.items.all %}
+              <div class="profile-item">
+                {% if item.product and item.product.image_url %}<img class="profile-item__image" src="{{ item.product.image_url }}" alt="{{ item.product_name }}" loading="lazy">{% else %}<span class="profile-item__placeholder">◇</span>{% endif %}
+                <div class="profile-item__name"><strong>{{ item.product_name }}</strong><span>{{ item.quantity }} dona × {{ item.unit_price|floatformat:0 }} so‘m</span></div>
+                <strong class="profile-item__total">{{ item.line_total|floatformat:0 }} so‘m</strong>
+              </div>
+            {% endfor %}
+          </div>
+          <footer class="profile-order__foot"><span>Yetkazish manzili: {{ order.address }}</span><strong>Buyurtma jami <b>{{ order.total|floatformat:0 }} so‘m</b></strong></footer>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="profile-empty"><span class="profile-empty__icon">▣</span><h2>Hali xarid yo‘q</h2><p>Katalogdan mahsulot tanlab, buyurtma bering. Buyurtmalaringiz shu yerda ko‘rinadi.</p><a class="button button--purple" href="{% url 'product_list' %}">Xaridlarni boshlash <span>↗</span></a></div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "store/base.html" %}
+{% load socialaccount %}
+{% block title %}{% if is_register %}Ro‘yxatdan o‘tish{% else %}Kirish{% endif %} | Uzum Market{% endblock %}
+{% block content %}
+{% get_providers as socialaccount_providers %}
+<section class="auth-page wrap">
+  <a class="back-link" href="{% url 'product_list' %}">← Bosh sahifaga qaytish</a>
+  <div class="auth-layout">
+    <aside class="auth-intro">
+      <span class="eyebrow"><span></span> Uzum Market</span>
+      <h1>{% if is_register %}Yaxshi tanlovlar shu yerdan boshlanadi{% else %}Xush kelibsiz{% endif %}</h1>
+      <p>{% if is_register %}Hisob yarating va sevimli mahsulotlaringizni topishni boshlang.{% else %}Hisobingizga kiring va xaridni davom ettiring.{% endif %}</p>
+      <span class="auth-mark" aria-hidden="true">u</span>
+    </aside>
+    <section class="auth-panel" aria-labelledby="auth-title">
+      <span class="eyebrow eyebrow--subtle">{% if is_register %}Yangi hisob{% else %}Shaxsiy hisob{% endif %}</span>
+      <h2 id="auth-title">{% if is_register %}Ro‘yxatdan o‘tish{% else %}Hisobga kirish{% endif %}</h2>
+      <form method="post" class="auth-form">
+        {% csrf_token %}
+        {% if not is_register and next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<span class="field-help">{{ field.help_text|safe }}</span>{% endif %}
+            {{ field.errors }}
+          </div>
+        {% endfor %}
+        <button class="button button--purple auth-submit" type="submit">{% if is_register %}Hisob yaratish{% else %}Kirish{% endif %}<span aria-hidden="true">→</span></button>
+      </form>
+      {% for provider in socialaccount_providers %}
+        {% if provider.id == "google" %}
+          <div class="auth-divider"><span>yoki</span></div>
+          <a class="google-button" href="{% provider_login_url provider.id process='login' %}"><span class="google-mark" aria-hidden="true">G</span> Google bilan davom etish</a>
+        {% endif %}
+      {% endfor %}
+      <p class="auth-switch">
+        {% if is_register %}Hisobingiz bormi? <a href="{% url 'login' %}">Kirish</a>
+        {% else %}Hisobingiz yo‘qmi? <a href="{% url 'register' %}">Ro‘yxatdan o‘tish</a>{% endif %}
+      </p>
+    </section>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}Buyurtma qabul qilindi — Uzum Market{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'store/cart.css' %}">{% endblock %}
+{% block content %}
+<section class="order-complete wrap">
+  <div class="order-complete__mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m8 16 5 5L24 10"/></svg></div>
+  <span class="eyebrow eyebrow--subtle">Buyurtma #{{ order.pk }}</span>
+  <h1>Buyurtmangiz qabul qilindi</h1>
+  <p>Rahmat, {{ order.customer_name }}. Buyurtmangiz saqlandi.</p>
+  <div class="order-complete__summary"><span>Buyurtma summasi</span><strong>{{ order.total|floatformat:0 }} so‘m</strong></div>
+  <a class="button button--purple" href="{% url 'product_list' %}">Xaridni davom ettirish <span>↗</span></a>
+</section>
+{% endblock %}

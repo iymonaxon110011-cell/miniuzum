@@ -1,0 +1,3 @@
+{% extends 'store/base.html' %}
+{% block title %}Mahsulotni o‘chirish — Uzum Market{% endblock %}
+{% block content %}<section class="delete-page wrap"><div class="delete-box"><span class="delete-icon">×</span><span class="eyebrow eyebrow--subtle">Tasdiqlash</span><h1>Mahsulotni o‘chirasizmi?</h1><p><strong>{{ product.name }}</strong> katalogdan butunlay o‘chiriladi. Bu amalni ortga qaytarib bo‘lmaydi.</p><form method="post">{% csrf_token %}<a class="button button--outline" href="{% url 'product_update' product.pk %}">Ortga qaytish</a><button class="button button--danger" type="submit">Ha, o‘chirish</button></form></div></section>{% endblock %}

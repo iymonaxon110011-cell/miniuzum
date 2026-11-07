@@ -1,0 +1,29 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}Savat — Uzum Market{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'store/cart.css' %}">{% endblock %}
+{% block content %}
+<section class="cart-page wrap">
+  <div class="cart-heading"><div class="cart-heading__title"><span class="cart-heading__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/></svg></span><div><span class="eyebrow eyebrow--subtle">Xaridlaringiz</span><h1>Savat</h1>{% if items %}<p>{{ quantity_total }} ta mahsulot</p>{% endif %}</div></div><a class="detail-back" href="{% url 'product_list' %}">← Katalogga qaytish</a></div>
+  {% if items %}
+    <div class="cart-layout">
+      <div class="cart-items">
+        {% for item in items %}
+          <article class="cart-item">
+            <a class="cart-item__image" href="{% url 'product_detail' item.product.pk %}">{% if item.product.image_url %}<img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">{% else %}<span>✳</span>{% endif %}</a>
+            <div class="cart-item__info"><span class="product-category">{{ item.product.category }}</span><a href="{% url 'product_detail' item.product.pk %}" class="cart-item__name">{{ item.product.name }}</a><strong class="cart-item__price">{{ item.line_total|floatformat:0 }} so‘m</strong><form class="cart-item__remove" action="{% url 'cart_update' item.product.pk %}" method="post">{% csrf_token %}<button type="submit" name="action" value="remove"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 5.5h13M8 5.5V3.8h4v1.7m-6.5 0 .8 10.7h7.4l.8-10.7M8.3 8.5v4.8m3.4-4.8v4.8"/></svg><span>O‘chirish</span></button></form></div>
+            <div class="quantity-control" aria-label="{{ item.product.name }} miqdori">
+              <form action="{% url 'cart_update' item.product.pk %}" method="post">{% csrf_token %}<button type="submit" name="action" value="decrease" aria-label="Bittaga kamaytirish" {% if item.quantity == 1 %}disabled{% endif %}>−</button></form>
+              <span>{{ item.quantity }}</span>
+              <form action="{% url 'cart_update' item.product.pk %}" method="post">{% csrf_token %}<button type="submit" name="action" value="increase" aria-label="Bittaga oshirish">＋</button></form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+      <aside class="cart-summary"><h2>Buyurtma</h2><div><span>Mahsulotlar</span><strong>{{ quantity_total }} ta</strong></div><div class="cart-summary__total"><span>Jami</span><strong>{{ total|floatformat:0 }} so‘m</strong></div><p>Jami narx mahsulotlar miqdoriga qarab hisoblandi.</p><a class="order-button" href="{% url 'checkout' %}"><span>Buyurtma berish</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10h12m-5-5 5 5-5 5"/></svg></a></aside>
+    </div>
+  {% else %}
+    <div class="cart-empty"><span class="cart-empty__icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 9h4l4.2 20.2a4 4 0 0 0 3.9 3.2h17.8a4 4 0 0 0 3.7-2.6L45 17H13"/><circle cx="21" cy="40" r="2.5"/><circle cx="36" cy="40" r="2.5"/><path d="M24 21h10m-5-5v10"/></svg></span><h2>Savatingiz hozircha bo‘sh</h2><p>Mahsulotlarni savatga qo‘shsangiz, ular shu yerda ko‘rinadi.</p><a class="button button--purple" href="{% url 'product_list' %}">Xaridni davom ettirish <span>↗</span></a></div>
+  {% endif %}
+</section>
+{% endblock %}

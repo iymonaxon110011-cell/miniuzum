@@ -1,0 +1,21 @@
+.image-field { margin-bottom: 18px; }
+.image-field__label { display: block; margin-bottom: 8px; color: #47414e; font-size: 11px; font-weight: 700; }
+.image-field__label small { margin-left: 4px; color: #aaa4af; font-size: 10px; font-weight: 400; }
+.image-preview { position: relative; display: grid; min-height: 190px; aspect-ratio: 1.9; place-items: center; overflow: hidden; border: 1px dashed #d8cbe9; border-radius: 9px; background: radial-gradient(ellipse at 50% 10%, #fff 0, #faf8fd 65%, #f4effa 100%); }
+.image-preview img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: contain; }
+.image-preview__placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px; text-align: center; }
+.image-preview__placeholder i { width: 38px; height: 38px; display: grid; place-items: center; margin-bottom: 3px; border-radius: 12px; color: #7040bd; background: #efe7fb; font-size: 22px; font-style: normal; }
+.image-preview__placeholder strong { color: #595361; font-size: 11px; }
+.image-preview__placeholder small { color: #a19ba6; font-size: 9px; }
+.image-upload { display: flex; align-items: center; gap: 11px; margin-top: 10px; }
+.image-upload__button { min-height: 36px; display: inline-flex; flex: 0 0 auto; align-items: center; gap: 7px; padding: 0 12px; border: 1px solid #e8e0f1; border-radius: 7px; color: #6734b7; background: #f7f3fc; font-size: 11px; font-weight: 700; cursor: pointer; transition: background .2s, border-color .2s; }
+.image-upload__button:hover { border-color: #cbb9e3; background: #f0e8fa; }
+.image-upload__button span { font-size: 16px; }
+.upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; clip: rect(0, 0, 0, 0); }
+.image-upload:focus-within .image-upload__button { outline: 3px solid #f0e8fa; outline-offset: 2px; }
+.image-upload__name { min-width: 0; overflow: hidden; color: #99939f; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.image-field > ul.errorlist { margin: 6px 0 0; padding: 0; color: #c74f38; font-size: 10px; list-style: none; }
+@media (max-width: 700px) {
+  .image-preview { min-height: 155px; aspect-ratio: 1.45; }
+  .image-upload { align-items: flex-start; flex-direction: column; gap: 8px; }
+}

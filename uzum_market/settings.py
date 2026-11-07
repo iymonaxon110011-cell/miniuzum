@@ -5,7 +5,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-uzum-market-development-key"
 DEBUG = False
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver", 'miniuzum.onrender.com']
 
 INSTALLED_APPS = [
     "django.contrib.admin",

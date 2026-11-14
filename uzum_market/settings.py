@@ -105,6 +105,17 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "EMAIL_AUTHENTICATION": True,
-    },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        "METHOD": "oauth2",
+    }
 }
+
+# Allauth xavfsizlik va qo'shimcha sozlamalari
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_USERNAME_REQUIRED = True
